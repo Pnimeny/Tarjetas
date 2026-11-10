@@ -87,8 +87,9 @@
 </div>
 
 <script>
-/* БАЗА СЛОВ */
+/* БАЗА СЛОВ (ПОЛНАЯ, ОБЪЕДИНЁННАЯ И ИСПРАВЛЕННАЯ) */
 const DEFAULT_WORDS = [
+  // Больница и здоровье
   { es: "Me duele aquí", ru: "У меня здесь болит", ex: "Me duele aquí, en el pecho." },
   { es: "Tengo fiebre", ru: "У меня температура", ex: "Tengo fiebre desde ayer." },
   { es: "Tengo dolor de cabeza", ru: "У меня болит голова" },
@@ -104,10 +105,14 @@ const DEFAULT_WORDS = [
   { es: "Tengo el certificado de vacunación", ru: "У меня есть сертификат о вакцинации" },
   { es: "¿Cada cuánto tengo que tomarlo?", ru: "Как часто это принимать?" },
   { es: "¿Antes o después de comer?", ru: "До или после еды?" },
+
+  // Числительные
   { es: "uno", ru: "один" }, { es: "dos", ru: "два" }, { es: "tres", ru: "три" },
   { es: "cuatro", ru: "четыре" }, { es: "cinco", ru: "пять" }, { es: "diez", ru: "десять" },
   { es: "veinte", ru: "двадцать" }, { es: "treinta y uno", ru: "тридцать один" },
   { es: "cincuenta", ru: "пятьдесят" }, { es: "cien", ru: "сто" },
+
+  // Базовые фразы
   { es: "No entiendo", ru: "Я не понимаю" },
   { es: "Más despacio, por favor", ru: "Медленнее, пожалуйста" },
   { es: "¿Puede escribirlo?", ru: "Можете это написать?" },
@@ -115,10 +120,113 @@ const DEFAULT_WORDS = [
   { es: "¿Cuánto cuesta?", ru: "Сколько стоит?" },
   { es: "Quiero esto, por favor", ru: "Я хочу это, пожалуйста" },
   { es: "¿Dónde está el baño?", ru: "Где туалет?" },
-  { es: "Necesito ayuda", ru: "Мне нужна помощь" }
+  { es: "Necesito ayuda", ru: "Мне нужна помощь" },
+
+  // Существительные и прилагательные
+  { es: "palabra", ru: "слово", ex: "No entiendo esta palabra." },
+  { es: "saña", ru: "ярость, злоба", ex: "Lo hizo con mucha saña." },
+  { es: "melodía", ru: "мелодия", ex: "Me gusta esta melodía." },
+  { es: "faena", ru: "задача, работа", ex: "Tengo mucha faena hoy." },
+  { es: "razón", ru: "причина, разум", ex: "No hay razón para preocuparse." },
+  { es: "montón", ru: "куча, много", ex: "Hay un montón de gente." },
+  { es: "cadena", ru: "цепь", ex: "Las cadenas del coche." },
+  { es: "tío", ru: "дядя (или парень)", ex: "Mi tío vive en Madrid." },
+  { es: "cantidad", ru: "количество", ex: "Necesito una gran cantidad." },
+  { es: "aviso", ru: "предупреждение, уведомление", ex: "Recibí un aviso importante." },
+  { es: "tema", ru: "тема, проблема, вопрос", ex: "Es un tema muy complicado." },
+  { es: "temor", ru: "страх, опасение", ex: "Siente un gran temor a las alturas." },
+  { es: "indispensable", ru: "незаменимый, необходимый", ex: "El agua es indispensable para la vida." },
+  { es: "perdido", ru: "потерянный", ex: "He encontrado el perro perdido." },
+  { es: "manada", ru: "стадо", ex: "Vimos una manada de lobos." },
+  { es: "vida", ru: "жизнь", ex: "La vida es bella." },
+  { es: "mente", ru: "разум, ум", ex: "Tienes que abrir la mente." },
+  { es: "desconocido", ru: "незнакомец", ex: "Hablé con un desconocido." },
+  { es: "averiado / averiada", ru: "сломанный / сломанная", ex: "El coche está averiado." },
+  { es: "miedo", ru: "страх", ex: "Tengo miedo de las alturas." },
+  { es: "caído", ru: "упавший", ex: "El árbol caído bloquea la calle." },
+  { es: "voz", ru: "голос", ex: "Tienes una voz muy bonita." },
+  { es: "pobre", ru: "бедный", ex: "El hombre pobre no tenía dinero." },
+  { es: "costado", ru: "сторона (бок)", ex: "Me duele el costado." },
+  { es: "cara", ru: "лицо", ex: "Tiene una cara muy amable." },
+  { es: "error", ru: "ошибка", ex: "Cometí un error." },
+  { es: "talla", ru: "размер (одежды)", ex: "¿Qué talla usas?" },
+  { es: "asentamiento", ru: "поселение", ex: "Es un asentamiento pequeño." },
+  { es: "dueño", ru: "владелец", ex: "El dueño del perro." },
+  { es: "frente", ru: "лоб, фронт", ex: "Me duele la frente." },
+  { es: "árbol", ru: "дерево", ex: "El árbol es muy alto." },
+  { es: "gente", ru: "люди", ex: "Hay mucha gente aquí." },
+  { es: "venganza", ru: "месть", ex: "La venganza no es buena." },
+  { es: "acuerdo", ru: "соглашение", ex: "Llegamos a un acuerdo." },
+  { es: "cuerpo", ru: "тело", ex: "El cuerpo humano es increíble." },
+
+  // Глаголы
+  { es: "enterarse", ru: "выяснять, узнавать", ex: "Me enteré de la noticia ayer." },
+  { es: "concordar", ru: "согласовываться, соглашаться", ex: "El verbo concuerda con el sujeto." },
+  { es: "quedar", ru: "оставаться (остатки)", ex: "No queda pan en la mesa." },
+  { es: "despertarse", ru: "просыпаться", ex: "Me despierto a las 7." },
+  { es: "conseguir", ru: "достигать, добиваться", ex: "He conseguido el trabajo." },
+  { es: "afinar", ru: "настраивать (инструмент)", ex: "Voy a afinar la guitarra." },
+  { es: "temer", ru: "бояться, опасаться", ex: "Temo que llueva mañana." },
+  { es: "traer", ru: "приносить", ex: "¿Puedes traer el pan?" },
+  { es: "huir", ru: "бежать, убегать", ex: "El ladrón huyó de la policía." },
+  { es: "sentir", ru: "чувствовать", ex: "Lo siento mucho." },
+  { es: "tener ganas de", ru: "иметь желание (хотеть)", ex: "Tengo ganas de viajar." },
+  { es: "aumentar", ru: "повышаться, увеличиваться", ex: "El precio ha aumentado." },
+  { es: "preguntar", ru: "спрашивать", ex: "Él preguntó por ti." },
+  { es: "asustar", ru: "пугать, испугать", ex: "No me asustes así." },
+  { es: "olvidar", ru: "забывать", ex: "No olvides las llaves." },
+  { es: "comprobar", ru: "выяснить, проверить", ex: "Voy a comprobar los datos." },
+  { es: "dejar", ru: "оставить", ex: "Voy a dejar las llaves aquí." },
+  { es: "esconder", ru: "скрывать, прятать", ex: "Vamos a esconder el regalo." },
+  { es: "culpar", ru: "обвинять", ex: "No culpes a los demás." },
+  { es: "irse", ru: "уходить", ex: "Me voy a casa." },
+  { es: "volar", ru: "летать", ex: "Quiero volar a España." },
+  { es: "dudar", ru: "сомневаться", ex: "No dudes de ti mismo." },
+  { es: "perder", ru: "терять, потерять", ex: "No quiero perder el tren." },
+  { es: "intentar", ru: "стараться", ex: "Voy a intentar aprender." },
+  { es: "crecer", ru: "расти", ex: "Los niños crecen muy rápido." },
+  { es: "disparar", ru: "стрелять", ex: "No dispares." },
+  { es: "matar", ru: "убивать", ex: "No quiero matar insectos." },
+  { es: "luchar", ru: "бороться", ex: "Tenemos que luchar por nuestros sueños." },
+  { es: "cargar", ru: "заряжать", ex: "Voy a cargar el móvil." },
+  { es: "rechazar", ru: "отклонять", ex: "Decidió rechazar la oferta." },
+  { es: "parecer", ru: "казаться", ex: "Parece muy cansado." },
+  { es: "enfrentar", ru: "противостоять", ex: "Hay que enfrentar los miedos." },
+  { es: "entender", ru: "понимать", ex: "No puedo entender esto." },
+  { es: "venir", ru: "приходить", ex: "¿Puedes venir mañana?" },
+  { es: "acabar", ru: "заканчивать", ex: "Vamos a acabar el trabajo." },
+  { es: "recoger", ru: "забирать, собирать", ex: "Voy a recoger a los niños." },
+
+  // Наречия, предлоги и прочее
+  { es: "delante", ru: "перед, впереди", ex: "El coche está delante de la casa." },
+  { es: "nadie", ru: "никто", ex: "No hay nadie en casa." },
+  { es: "menos", ru: "меньше", ex: "Quiero un poco menos." },
+  { es: "pleno / plena", ru: "полный / полная", ex: "Estoy en plena forma." },
+  { es: "vete", ru: "уходи (неформально)", ex: "¡Vete de aquí ahora mismo!" },
+  { es: "ojalá", ru: "если бы (хотелось бы)", ex: "Ojalá llueva mañana." },
+  { es: "indefinidamente", ru: "бессрочно, бесконечно", ex: "El contrato se prorrogó indefinidamente." },
+  { es: "callaos", ru: "замолчите, тихо (повелит.)", ex: "¡Callaos de una vez!" },
+  { es: "adelante", ru: "вперед, давай", ex: "Adelante, pasa." },
+  { es: "demasiado", ru: "слишком, слишком много", ex: "Es demasiado tarde." },
+  { es: "acerca de", ru: "о, насчет", ex: "Hablamos acerca de la película." },
+  { es: "cuyo / cuya", ru: "чей / чья (относит. местоим.)", ex: "El hombre cuyo coche fue robado." },
+  { es: "atrás", ru: "назад, сзади", ex: "Mira hacia atrás." },
+  { es: "encima", ru: "сверху, на (поверхности)", ex: "El libro está encima de la mesa." },
+  { es: "lejos", ru: "далеко", ex: "La playa está lejos." },
+  { es: "por eso", ru: "поэтому", ex: "Está lloviendo, por eso no salgo." },
+  { es: "mejor", ru: "лучше", ex: "Es mejor ir en tren." },
+  { es: "sería", ru: "был бы (условное)", ex: "Sería mejor esperar." },
+  { es: "demasiadas", ru: "слишком много (ж.р. мн.ч.)", ex: "Hay demasiadas personas." },
+  { es: "ningún", ru: "никакой (перед сущ.)", ex: "No tengo ningún problema." },
+  { es: "después", ru: "после", ex: "Hablamos después." },
+  { es: "pues", ru: "ну, тогда", ex: "Pues no lo sé." },
+  { es: "precisamente", ru: "именно, точно", ex: "Precisamente eso quería decir." },
+  { es: "pronto", ru: "скоро", ex: "Nos vemos pronto." },
+  { es: "habría", ru: "был бы / было бы", ex: "Habría sido mejor esperar." },
+  { es: "alguno", ru: "какой-нибудь, некоторый", ex: "¿Tienes algún libro?" }
 ];
 
-const STORAGE_KEY = "tarjetas_es_progress_v2"; // Обновил версию ключа
+const STORAGE_KEY = "tarjetas_es_progress_v2";
 const PER_DAY = 10;
 
 const app = document.getElementById("app");
@@ -135,7 +243,6 @@ function todayKey() {
   return d.toISOString().slice(0, 10);
 }
 
-// Загрузка состояния (включая пользовательские слова)
 function loadState() {
   let data = { date: null, known: [], customWords: [] };
   try {
@@ -149,12 +256,10 @@ function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-// Объединяем базовые и пользовательские слова
 function getAllWords() {
   return [...DEFAULT_WORDS, ...state.customWords];
 }
 
-// Детерминированный выбор карточек на день
 function buildDeck() {
   const day = todayKey();
   const saved = state.date === day ? state.known : [];
@@ -166,7 +271,6 @@ function buildDeck() {
   shuffled.sort((a, b) => a.r - b.r);
   const pool = shuffled.map(x => x.w);
   
-  // Исключаем уже отмеченные сегодня
   const fresh = pool.filter(w => !saved.includes(w.es));
   return fresh.slice(0, PER_DAY);
 }
@@ -295,14 +399,10 @@ document.getElementById("btnSaveAdd").addEventListener("click", () => {
     return;
   }
 
-  // Добавляем слово в память
   state.customWords.push({ es, ru, ex: ex || undefined });
   saveState();
-
-  // Сбрасываем модальное окно
   modal.classList.remove("active");
   
-  // Перестраиваем колоду дня, чтобы новое слово могло появиться
   deck = buildDeck();
   index = 0;
   render();
