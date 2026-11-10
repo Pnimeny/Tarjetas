@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Карточки испанского — день за днём</title>
+<style>
+  :root {
+    --bg: #f4f1ea;
+    --card: #ffffff;
+    --ink: #2b2b2b;
+    --muted: #7a7a7a;
+    --accent: #c0392b;
+    --accent2: #e67e22;
+    --ok: #27ae60;
+    --shadow: 0 8px 24px rgba(0,0,0,.12);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 48px;
+  }
+  header { text-align: center; margin-bottom: 20px; }
+  h1 { margin: 0 0 6px; font-size: 1.5rem; }
+  .sub { color: var(--muted); font-size: .9rem; }
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+    margin: 16px 0;
+  }
+  button {
+    font: inherit; cursor: pointer; border: none; border-radius: 10px;
+    padding: 10px 16px; background: #fff; color: var(--ink);
+    box-shadow: 0 2px 6px rgba(0,0,0,.08); transition: transform .08s, box-shadow .15s;
+  }
+  button:hover { box-shadow: 0 4px 12px rgba(0,0,0,.14); }
+  button:active { transform: scale(.97); }
+  button.primary { background: var(--accent); color: #fff; }
+  button.ghost { background: transparent; box-shadow: none; color: var(--muted); }
+  .counter {
+    font-size: .85rem; color: var(--muted); margin-bottom: 10px;
+  }
+  .scene { perspective: 1200px; width: 100%; max-width: 420px; }
+  .card {
+    position: relative; width: 100%; min-height: 260px;
+    transform-style: preserve-3d; transition: transform .5s;
+    cursor: pointer;
+  }
+  .card.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; inset: 0; backface-visibility: hidden;
+    background: var(--card); border-radius: 20px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 28px; text-align: center;
+  }
+  .face.back { transform: rotateY(180deg); }
+  .es { font-size: 2rem; font-weight: 700; line-height: 1.2; }
+  .hint { margin-top: 12px; color: var(--muted); font-size: .85rem; }
+  .ru { font-size: 1.4rem; font-weight: 600; }
+  .example { margin-top: 16px; font-size: .95rem; color: var(--muted); font-style: italic; }
+  .tag {
+    position: absolute; top: 14px; left: 14px;
+    font-size: .7rem; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--accent2); font-weight: 700;
+  }
+  .controls { display: flex; gap: 10px; margin-top: 22px; }
+  .controls button { flex: 1; min-width: 120px; }
+  .known { background: var(--ok); color: #fff; }
+  .empty {
+    text-align: center; padding: 40px 20px; background: var(--card);
+    border-radius: 20px; box-shadow: var(--shadow); max-width: 420px;
+  }
+  .empty h2 { margin-top: 0; }
+  .progress {
+    width: 100%; max-width: 420px; height: 8px; background: #e0ddd4;
+    border-radius: 99px; overflow: hidden; margin-bottom: 18px;
+  }
+  .progress > div { height: 100%; width: 0; background: var(--accent); transition: width .3s; }
+  .stats { font-size: .8rem; color: var(--muted); margin-top: 8px; text-align:center; }
+  .done-badge {
+    display: inline-block; margin-top: 12px; padding: 6px 12px;
+    background: #eafaf1; color: var(--ok); border-radius: 99px; font-size: .85rem;
+  }
+  @media (max-width: 480px) { .es { font-size: 1.6rem; } .ru { font-size: 1.2rem; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🇪🇸 Карточки на день</h1>
+  <div class="sub" id="dateLabel"></div>
+</header>
+
+<div class="progress"><div id="progressBar"></div></div>
+
+<div class="toolbar">
+  <button class="ghost" id="btnShuffle">🔀 Перемешать</button>
+  <button class="ghost" id="btnReset">♻️ Сбросить день</button>
+</div>
+
+<div class="counter" id="counter"></div>
+
+<div id="app"></div>
+
+<script>
+/* ============================================================
+   БАЗА СЛОВ
+   Добавляйте свои пары: { es, ru, ex } — ex необязательно.
+   ============================================================ */
+const WORDS = [
+  // Больница и здоровье
+  { es: "Me duele aquí", ru: "У меня здесь болит", ex: "Me duele aquí, en el pecho." },
+  { es: "Tengo fiebre", ru: "У меня температура", ex: "Tengo fiebre desde ayer." },
+  { es: "Tengo dolor de cabeza", ru: "У меня болит голова" },
+  { es: "Tengo tos", ru: "У меня кашель" },
+  { es: "Me falta el aire", ru: "Мне не хватает воздуха" },
+  { es: "Soy alérgico/a a la penicilina", ru: "У меня аллергия на пенициллин" },
+  { es: "Necesito una receta", ru: "Мне нужен рецепт" },
+  { es: "¿Dónde está urgencias?", ru: "Где неотложная помощь?" },
+  { es: "Llame a una ambulancia", ru: "Вызовите скорую" },
+  { es: "Me mordió un perro", ru: "Меня укусила собака", ex: "Me mordió un perro en el extranjero." },
+  { es: "Ya me pusieron una dosis", ru: "Мне уже сделали одну дозу" },
+  { es: "Necesito dos dosis más", ru: "Мне нужно ещё две дозы" },
+  { es: "Tengo el certificado de vacunación", ru: "У меня есть сертификат о вакцинации" },
+  { es: "¿Cada cuánto tengo que tomarlo?", ru: "Как часто это принимать?" },
+  { es: "¿Antes o después de comer?", ru: "До или после еды?" },
+
+  // Числительные
+  { es: "uno", ru: "один" }, { es: "dos", ru: "два" }, { es: "tres", ru: "три" },
+  { es: "cuatro", ru: "четыре" }, { es: "cinco", ru: "пять" }, { es: "diez", ru: "десять" },
+  { es: "veinte", ru: "двадцать" }, { es: "treinta y uno", ru: "тридцать один" },
+  { es: "cincuenta", ru: "пятьдесят" }, { es: "cien", ru: "сто" },
+
+  // Базовые фразы
+  { es: "No entiendo", ru: "Я не понимаю" },
+  { es: "Más despacio, por favor", ru: "Медленнее, пожалуйста" },
+  { es: "¿Puede escribirlo?", ru: "Можете это написать?" },
+  { es: "¿Habla inglés?", ru: "Вы говорите по-английски?" },
+  { es: "¿Cuánto cuesta?", ru: "Сколько стоит?" },
+  { es: "Quiero esto, por favor", ru: "Я хочу это, пожалуйста" },
+  { es: "¿Dónde está el baño?", ru: "Где туалет?" },
+  { es: "Necesito ayuda", ru: "Мне нужна помощь" }
+];
+
+/* ============================================================
+   ЛОГИКА
+   ============================================================ */
+const STORAGE_KEY = "tarjetas_es_progress_v1";
+const PER_DAY = 10; // сколько карточек в день
+
+const app = document.getElementById("app");
+const counterEl = document.getElementById("counter");
+const dateLabel = document.getElementById("dateLabel");
+const progressBar = document.getElementById("progressBar");
+
+let deck = [];
+let index = 0;
+let state = loadState();
+
+function todayKey() {
+  const d = new Date();
+  return d.toISOString().slice(0, 10);
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : { date: null, known: [] };
+  } catch { return { date: null, known: [] }; }
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+// Детерминированный выбор карточек на день (стабильный в течение дня)
+function buildDeck() {
+  const day = todayKey();
+  const saved = state.date === day ? state.known : [];
+  // Простой сид по дате
+  let seed = 0;
+  for (const ch of day) seed = (seed * 31 + ch.charCodeAt(0)) % 2147483647;
+  const shuffled = [...WORDS].map((w, i) => ({ w, r: pseudoRandom(seed + i) }));
+  shuffled.sort((a, b) => a.r - b.r);
+  const pool = shuffled.map(x => x.w);
+  // Исключаем уже отмеченные сегодня
+  const fresh = pool.filter(w => !saved.includes(w.es));
+  return fresh.slice(0, PER_DAY);
+}
+
+function pseudoRandom(n) {
+  const x = Math.sin(n) * 10000;
+  return x - Math.floor(x);
+}
+
+function resetDay() {
+  state = { date: todayKey(), known: [] };
+  saveState();
+  start();
+}
+
+function start() {
+  const day = todayKey();
+  if (state.date !== day) {
+    state = { date: day, known: [] };
+    saveState();
+  }
+  deck = buildDeck();
+  index = 0;
+  renderDate();
+  render();
+}
+
+function renderDate() {
+  const d = new Date();
+  const opts = { weekday: "long", day: "numeric", month: "long" };
+  dateLabel.textContent = d.toLocaleDateString("ru-RU", opts);
+}
+
+function render() {
+  progressBar.style.width = (state.known.length / PER_DAY * 100) + "%";
+
+  if (deck.length === 0) {
+    app.innerHTML = `
+      <div class="empty">
+        <h2>🎉 На сегодня всё!</h2>
+        <p>Вы повторили все карточки дня. Загляните завтра — будут новые.</p>
+        <span class="done-badge">Повторено: ${state.known.length} / ${PER_DAY}</span>
+        <div class="controls">
+          <button class="primary" onclick="location.reload()">Обновить</button>
+        </div>
+      </div>`;
+    counterEl.textContent = "";
+    return;
+  }
+
+  const w = deck[index];
+  counterEl.textContent = `Карточка ${index + 1} из ${deck.length}`;
+
+  app.innerHTML = `
+    <div class="scene">
+      <div class="card" id="card">
+        <div class="face front">
+          <span class="tag">ES → RU</span>
+          <div class="es">${escapeHtml(w.es)}</div>
+          <div class="hint">Нажмите, чтобы увидеть перевод</div>
+        </div>
+        <div class="face back">
+          <span class="tag">Перевод</span>
+          <div class="ru">${escapeHtml(w.ru)}</div>
+          ${w.ex ? `<div class="example">«${escapeHtml(w.ex)}»</div>` : ""}
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="known" id="btnKnow">✓ Знаю</button>
+      <button id="btnAgain">↻ Ещё раз</button>
+    </div>
+    <div class="stats">Повторено сегодня: ${state.known.length} / ${PER_DAY}</div>
+  `;
+
+  const card = document.getElementById("card");
+  card.addEventListener("click", () => card.classList.toggle("flipped"));
+
+  document.getElementById("btnKnow").addEventListener("click", () => markKnown(w.es));
+  document.getElementById("btnAgain").addEventListener("click", () => {
+    card.classList.remove("flipped");
+    // отправляем карточку в конец колоды
+    deck.push(deck.splice(index, 1)[0]);
+    render();
+  });
+}
+
+function markKnown(es) {
+  if (!state.known.includes(es)) state.known.push(es);
+  saveState();
+  deck.splice(index, 1);
+  if (index >= deck.length) index = 0;
+  render();
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+
+document.getElementById("btnShuffle").addEventListener("click", () => {
+  deck.sort(() => Math.random() - 0.5);
+  index = 0;
+  render();
+});
+document.getElementById("btnReset").addEventListener("click", resetDay);
+
+start();
+</script>
+</body>
+</html>
